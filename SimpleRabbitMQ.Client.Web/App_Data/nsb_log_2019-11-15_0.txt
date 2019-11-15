@@ -1,0 +1,16 @@
+﻿2019-11-15 13:36:43.211 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:36:43.488 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 13:38:52.451 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:38:52.743 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 13:40:31.290 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:40:31.593 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 13:42:36.469 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:42:36.735 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
