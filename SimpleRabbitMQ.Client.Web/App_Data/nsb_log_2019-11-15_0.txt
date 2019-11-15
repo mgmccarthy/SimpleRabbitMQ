@@ -14,3 +14,34 @@ License Expiration: 2020-05-02
 2019-11-15 13:42:36.735 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
 License Expiration: 2020-05-02
 
+2019-11-15 13:54:00.234 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:54:00.503 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 13:56:22.810 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:56:23.105 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 13:59:43.561 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 13:59:43.868 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 14:10:26.912 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 14:10:27.152 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 15:50:26.187 INFO  NServiceBus.RunningEndpointInstance Initiating shutdown.
+2019-11-15 15:50:26.210 INFO  NServiceBus.RunningEndpointInstance Shutdown complete.
+2019-11-15 16:31:49.047 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 16:31:49.247 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 16:32:12.601 INFO  NServiceBus.RunningEndpointInstance Initiating shutdown.
+2019-11-15 16:32:12.617 INFO  NServiceBus.RunningEndpointInstance Shutdown complete.
+2019-11-15 16:32:20.107 INFO  DefaultFactory Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 16:32:20.435 INFO  NServiceBus.LicenseManager Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+
+2019-11-15 16:34:13.024 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-15 16:34:13.302 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02

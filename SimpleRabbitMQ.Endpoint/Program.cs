@@ -20,7 +20,6 @@ namespace SimpleRabbitMQ.Endpoint
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
 
-            //TODO: MIKE, I think this is self-hosting, not NSB host?
             var endpointInstance = await NServiceBus.Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
         
             ////this didn't work. Not too sure if there is a difference in Delayed Delivery with Rabbit?

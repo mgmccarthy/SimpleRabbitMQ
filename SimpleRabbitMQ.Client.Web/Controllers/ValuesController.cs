@@ -21,9 +21,10 @@ namespace SimpleRabbitMQ.Client.Web.Controllers
         }
 
         // POST api/values
-        public Task Post([FromBody]string value)
+        public async Task<IHttpActionResult> Post([FromBody]string value)
         {
-            return WebApiApplication.Endpoint.Send(new TestCommand());
+            await WebApiApplication.Endpoint.Send(new TestCommand());
+            return Ok();
         }
 
         // PUT api/values/5
