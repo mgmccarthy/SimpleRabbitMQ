@@ -3,11 +3,11 @@ using NServiceBus;
 using NServiceBus.Logging;
 using SimpleRabbitMQ.Messages;
 
-namespace SimpleRabbitMQ.Endpoint
+namespace SimpleRabbitMQ.Endpoint2
 {
     public class TestEventHandler :IHandleMessages<TestEvent>
     {
-        static ILog log = LogManager.GetLogger<TestEventHandler>();
+        static readonly ILog log = LogManager.GetLogger<TestEventHandler>();
 
         public Task Handle(TestEvent message, IMessageHandlerContext context)
         {
