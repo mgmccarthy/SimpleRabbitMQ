@@ -1,0 +1,27 @@
+﻿2019-11-17 13:29:41.601 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 13:29:41.966 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:19:07.592 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:19:07.964 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:19:37.483 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:19:37.770 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:27:28.080 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:27:28.421 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:31:36.896 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:31:37.183 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:36:10.724 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:36:11.027 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:37:21.806 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:37:35.891 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:40:16.149 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:40:16.519 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
+2019-11-17 14:42:45.212 INFO  Logging to 'D:\Projects\SimpleRabbitMQTransportUsage\SimpleRabbitMQ.Client.Web\App_Data\' with level Info
+2019-11-17 14:42:45.524 INFO  Selected active license from C:\ProgramData\ParticularSoftware\license.xml
+License Expiration: 2020-05-02
