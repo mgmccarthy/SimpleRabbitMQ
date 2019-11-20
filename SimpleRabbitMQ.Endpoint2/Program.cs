@@ -9,9 +9,15 @@ namespace SimpleRabbitMQ.Endpoint2
     {
         static async Task Main()
         {
-            Console.Title = "SimpleRabbitMQ.Endpoint2";
-            var endpointConfiguration = new EndpointConfiguration("SimpleRabbitMQ.Endpoint2");
+            const string endpointName = "SimpleRabbitMQ.Endpoint2";
+
+            Console.Title = endpointName;
+            var endpointConfiguration = new EndpointConfiguration(endpointName);
+            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+            endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
+            endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
             var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+            transport.Transactions(TransportTransactionMode.ReceiveOnly); //Rabbit's default transaction level
             transport.UseConventionalRoutingTopology();
             transport.ConnectionString("host=localhost");
             endpointConfiguration.EnableInstallers();
@@ -19,6 +25,17 @@ namespace SimpleRabbitMQ.Endpoint2
 
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
+
+            //https://docs.particular.net/monitoring/metrics/
+            //https://docs.particular.net/monitoring/metrics/install-plugin
+            var metrics = endpointConfiguration.EnableMetrics();
+            endpointConfiguration.UniquelyIdentifyRunningInstance()
+                .UsingNames(
+                    instanceName: endpointName,
+                    hostName: Environment.MachineName);
+            metrics.SendMetricDataToServiceControl(
+                serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring",
+                interval: TimeSpan.FromSeconds(10));
 
             var endpointInstance = await NServiceBus.Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
 

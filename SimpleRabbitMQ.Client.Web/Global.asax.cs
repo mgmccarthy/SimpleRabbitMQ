@@ -16,12 +16,15 @@ namespace SimpleRabbitMQ.Client.Web
         protected void Application_Start()
         {
             var endpointConfiguration = new EndpointConfiguration("SimpleRabbitMQ.Client.Web");
+            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+            endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
+            endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
             var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
             transport.Routing().RouteToEndpoint(typeof(TestCommand), "SimpleRabbitMQ.Endpoint");
             transport.UseConventionalRoutingTopology();
             transport.ConnectionString("host=localhost");
             endpointConfiguration.EnableInstallers();
-            endpointConfiguration.EnableOutbox();
+            //endpointConfiguration.EnableOutbox();
             
             //getting rid of SendOnly, aka, putting a queue under Client.Web seems to have a 1:1 dependency on each http request that is processed by the API controller
             //to be subsequently tied to the processing of that message in the endpoint. With SendOnly, the messages throughput was majorly quicker and the endpoint had to catch

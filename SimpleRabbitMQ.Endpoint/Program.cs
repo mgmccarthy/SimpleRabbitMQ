@@ -9,11 +9,23 @@ namespace SimpleRabbitMQ.Endpoint
     {
         static async Task Main()
         {
-            Console.Title = "SimpleRabbitMQ.Endpoint";
-            var endpointConfiguration = new EndpointConfiguration("SimpleRabbitMQ.Endpoint");
+            const string endpointName = "SimpleRabbitMQ.Endpoint";
+
+            Console.Title = endpointName;
+            var endpointConfiguration = new EndpointConfiguration(endpointName);
+            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+            endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
+            endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
             var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+            transport.Transactions(TransportTransactionMode.ReceiveOnly); //Rabbit's default transaction level
+            
+            //if you try to use this, the endpoint throws and exception on startup
+            //transport.Transactions(TransportTransactionMode.TransactionScope);
+            //transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+
             //transport.Routing().RouteToEndpoint(typeof(TestCommand), "SimpleRabbitMQ.Endpoint");
             //transport.Routing().RegisterPublisher();
+
             transport.UseConventionalRoutingTopology();
             transport.ConnectionString("host=localhost");
             endpointConfiguration.EnableInstallers();
@@ -22,6 +34,17 @@ namespace SimpleRabbitMQ.Endpoint
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
 
+            //https://docs.particular.net/monitoring/metrics/
+            //https://docs.particular.net/monitoring/metrics/install-plugin
+            var metrics = endpointConfiguration.EnableMetrics();
+            endpointConfiguration.UniquelyIdentifyRunningInstance()
+                .UsingNames(
+                    instanceName: endpointName,
+                    hostName: Environment.MachineName);
+            metrics.SendMetricDataToServiceControl(
+                serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring",
+                interval: TimeSpan.FromSeconds(10));
+            
             var endpointInstance = await NServiceBus.Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
         
             Console.WriteLine("Press any key to exit");
