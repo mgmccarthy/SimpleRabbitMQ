@@ -13,7 +13,7 @@ namespace SimpleRabbitMQ.Endpoint2
 
             Console.Title = endpointName;
             var endpointConfiguration = new EndpointConfiguration(endpointName);
-            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+            //endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
 
