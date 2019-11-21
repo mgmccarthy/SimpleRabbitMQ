@@ -4,7 +4,6 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using NServiceBus;
-using NServiceBus.Persistence;
 using SimpleRabbitMQ.Messages;
 
 namespace SimpleRabbitMQ.Client.Web
