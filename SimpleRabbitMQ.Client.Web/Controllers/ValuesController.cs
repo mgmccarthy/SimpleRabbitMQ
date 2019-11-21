@@ -23,9 +23,12 @@ namespace SimpleRabbitMQ.Client.Web.Controllers
         // POST api/values
         public async Task<IHttpActionResult> Post([FromBody]string value)
         {
-            var options = new SendOptions();
-            options.RequireImmediateDispatch();
-            await WebApiApplication.Endpoint.Send(new TestCommand(), options).ConfigureAwait(false);
+            //commenting out the RequireImmediateDispatch had a significant impact on now many req per second went through both WebAPI (via West Wind Web Surge)
+            //and the amount of messages per second both ep's could process. About 23 req per sec vs. 208 req per sec. Significant
+            //var options = new SendOptions();
+            //options.RequireImmediateDispatch();
+            //await WebApiApplication.Endpoint.Send(new TestCommand(), options).ConfigureAwait(false);
+            await WebApiApplication.Endpoint.Send(new TestCommand());
             return Ok();
         }
 

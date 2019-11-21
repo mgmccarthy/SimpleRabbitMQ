@@ -35,12 +35,12 @@ namespace SimpleRabbitMQ.Endpoint2
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
 
-            ////https://docs.particular.net/monitoring/metrics/
-            ////https://docs.particular.net/monitoring/metrics/install-plugin
-            //var metrics = endpointConfiguration.EnableMetrics();
-            //endpointConfiguration.UniquelyIdentifyRunningInstance()
-            //    .UsingNames(instanceName: endpointName, hostName: Environment.MachineName);
-            //metrics.SendMetricDataToServiceControl(serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring", interval: TimeSpan.FromSeconds(10));
+            //https://docs.particular.net/monitoring/metrics/
+            //https://docs.particular.net/monitoring/metrics/install-plugin
+            var metrics = endpointConfiguration.EnableMetrics();
+            endpointConfiguration.UniquelyIdentifyRunningInstance()
+                .UsingNames(instanceName: endpointName, hostName: Environment.MachineName);
+            metrics.SendMetricDataToServiceControl(serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring", interval: TimeSpan.FromSeconds(10));
 
             //this did nothing to help throughput
             //var timeoutManager = endpointConfiguration.TimeoutManager();
