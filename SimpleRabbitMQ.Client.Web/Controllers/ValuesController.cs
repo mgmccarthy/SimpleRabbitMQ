@@ -23,7 +23,9 @@ namespace SimpleRabbitMQ.Client.Web.Controllers
         // POST api/values
         public async Task<IHttpActionResult> Post([FromBody]string value)
         {
-            await WebApiApplication.Endpoint.Send(new TestCommand());
+            var options = new SendOptions();
+            options.RequireImmediateDispatch();
+            await WebApiApplication.Endpoint.Send(new TestCommand(), options).ConfigureAwait(false);
             return Ok();
         }
 

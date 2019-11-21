@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /SimpleRabbitMQ.Client.Web/App_Data/nsb_log_2019-11-19_0.txt
+/SimpleRabbitMQ.Client.Web/App_Data/nsb_log_2019-11-20_0.txt

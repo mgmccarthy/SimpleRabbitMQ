@@ -37,6 +37,9 @@ namespace SimpleRabbitMQ.Endpoint2
                 serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring",
                 interval: TimeSpan.FromSeconds(10));
 
+            var timeoutManager = endpointConfiguration.TimeoutManager();
+            timeoutManager.LimitMessageProcessingConcurrencyTo(5);
+
             var endpointInstance = await NServiceBus.Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
 
             Console.WriteLine("Press any key to exit");
