@@ -1,4 +1,3 @@
-
 namespace SimpleRabbitMQ.Endpoint1
 {
     using NServiceBus;
@@ -12,13 +11,15 @@ namespace SimpleRabbitMQ.Endpoint1
             endpointConfiguration.DefineEndpointName(endpointName);
 
             var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-            transport.Transactions(TransportTransactionMode.ReceiveOnly); 
+            transport.Transactions(TransportTransactionMode.ReceiveOnly);
             //Rabbit's default transaction level
             //if you try to use this, the endpoint throws and exception on startup
             //transport.Transactions(TransportTransactionMode.TransactionScope);
             //transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
-
-            endpointConfiguration.UsePersistence<PLEASE_SELECT_ONE>();
+            transport.ConnectionString("host=localhost");
+            
+            endpointConfiguration.UsePersistence<InMemoryPersistence>();
+            endpointConfiguration.EnableInstallers();
 
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");

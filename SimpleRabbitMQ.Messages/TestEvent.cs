@@ -1,7 +1,7 @@
-﻿namespace SimpleRabbitMQ.Messages
-{
-    using NServiceBus;
+﻿using NServiceBus;
 
+namespace SimpleRabbitMQ.Messages
+{
     public class TestEvent : IEvent
     {
     }

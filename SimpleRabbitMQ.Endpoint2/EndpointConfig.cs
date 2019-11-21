@@ -1,4 +1,3 @@
-
 namespace SimpleRabbitMQ.Endpoint2
 {
     using NServiceBus;
@@ -17,8 +16,10 @@ namespace SimpleRabbitMQ.Endpoint2
             //if you try to use this, the endpoint throws and exception on startup
             //transport.Transactions(TransportTransactionMode.TransactionScope);
             //transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+            transport.ConnectionString("host=localhost");
 
-            endpointConfiguration.UsePersistence<PLEASE_SELECT_ONE>();
+            endpointConfiguration.UsePersistence<InMemoryPersistence>();
+            endpointConfiguration.EnableInstallers();
 
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
