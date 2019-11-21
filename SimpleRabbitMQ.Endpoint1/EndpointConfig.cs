@@ -17,7 +17,9 @@ namespace SimpleRabbitMQ.Endpoint1
             //transport.Transactions(TransportTransactionMode.TransactionScope);
             //transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
             transport.ConnectionString("host=localhost");
-            
+            //this does not appear to be an option with this version of RabbitMQ persistence, but apparently, it's the default
+            //transport.UseConventionalRoutingTopology();
+
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
 
             var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
