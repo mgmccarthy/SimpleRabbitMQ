@@ -1,4 +1,4 @@
-﻿namespace SimpleRabbitMQ.Endpoint
+﻿namespace SimpleRabbitMQ.Endpoint1
 {
     //public class TestCommandSaga : Saga<TestCommandSaga.TestCommandSagaData>,
     //    IAmStartedByMessages<TestCommand>,

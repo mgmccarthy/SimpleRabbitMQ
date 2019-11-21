@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Logging;
 using SimpleRabbitMQ.Messages;
 
-namespace SimpleRabbitMQ.Endpoint
+namespace SimpleRabbitMQ.Endpoint1
 {
     public class TestCommandHandler : IHandleMessages<TestCommand>
     {

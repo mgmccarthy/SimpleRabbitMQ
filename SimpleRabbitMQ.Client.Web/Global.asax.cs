@@ -20,7 +20,7 @@ namespace SimpleRabbitMQ.Client.Web
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
             var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-            transport.Routing().RouteToEndpoint(typeof(TestCommand), "SimpleRabbitMQ.Endpoint");
+            transport.Routing().RouteToEndpoint(typeof(TestCommand), "SimpleRabbitMQ.Endpoint1");
             transport.UseConventionalRoutingTopology();
             transport.ConnectionString("host=localhost");
             endpointConfiguration.EnableInstallers();
