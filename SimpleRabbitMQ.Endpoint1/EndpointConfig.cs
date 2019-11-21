@@ -19,6 +19,10 @@ namespace SimpleRabbitMQ.Endpoint1
             transport.ConnectionString("host=localhost");
             
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
+
+            var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
+            unitOfWorkSettings.WrapHandlersInATransactionScope();
+
             endpointConfiguration.EnableInstallers();
 
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
