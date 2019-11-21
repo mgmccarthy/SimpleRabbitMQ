@@ -1,7 +1,8 @@
+using NServiceBus;
+using NServiceBus.Persistence;
+
 namespace SimpleRabbitMQ.Endpoint1
 {
-    using NServiceBus;
-
     public class EndpointConfig : IConfigureThisEndpoint
     {
         public void Customize(EndpointConfiguration endpointConfiguration)
@@ -20,7 +21,9 @@ namespace SimpleRabbitMQ.Endpoint1
             //this does not appear to be an option with this version of RabbitMQ persistence, but apparently, it's the default
             //transport.UseConventionalRoutingTopology();
 
-            endpointConfiguration.UsePersistence<InMemoryPersistence>();
+            //endpointConfiguration.UsePersistence<InMemoryPersistence>();
+            var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
+            persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
 
             var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
             unitOfWorkSettings.WrapHandlersInATransactionScope();
