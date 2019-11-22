@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using NServiceBus;
@@ -28,7 +29,7 @@ namespace SimpleRabbitMQ.Client.Web.Controllers
             //var options = new SendOptions();
             //options.RequireImmediateDispatch();
             //await WebApiApplication.Endpoint.Send(new TestCommand(), options).ConfigureAwait(false);
-            await WebApiApplication.Endpoint.Send(new TestCommand());
+            await WebApiApplication.Endpoint.Send(new TestCommand { OrderId = Guid.NewGuid() });
             return Ok();
         }
 

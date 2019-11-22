@@ -1,10 +1,17 @@
-﻿namespace SimpleRabbitMQ.Endpoint1
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NServiceBus;
+using NServiceBus.Logging;
+using SimpleRabbitMQ.Messages;
+
+namespace SimpleRabbitMQ.Endpoint1
 {
     //public class TestCommandSaga : Saga<TestCommandSaga.TestCommandSagaData>,
     //    IAmStartedByMessages<TestCommand>,
     //    IHandleTimeouts<TestCommandSaga.TimeoutState>
     //{
-    //    static ILog log = LogManager.GetLogger<TestCommandSaga>();
+    //    private static ILog log = LogManager.GetLogger<TestCommandSaga>();
 
     //    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestCommandSagaData> mapper)
     //    {
@@ -14,8 +21,7 @@
     //    public Task Handle(TestCommand message, IMessageHandlerContext context)
     //    {
     //        //var nhibernateSession = context.SynchronizedStorageSession.Session();
-    //        //nhibernateSession.Save()
-
+    //        //nhibernateSession.Save(
     //        log.Info("Handling TestCommand");
     //        Data.ProductName = message.ProductName;
     //        Data.Descriptions = message.Descriptions;
