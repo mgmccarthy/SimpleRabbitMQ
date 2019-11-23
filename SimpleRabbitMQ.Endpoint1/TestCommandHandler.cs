@@ -11,7 +11,7 @@ namespace SimpleRabbitMQ.Endpoint1
 
         public Task Handle(TestCommand message, IMessageHandlerContext context)
         {
-            Log.Info("Hello from TestCommandHandler")
+            Log.Info("Hello from TestCommandHandler");
             
             //commenting out the RequireImmediateDispatch had a significant impact on now many req per second went through both WebAPI (via West Wind Web Surge)
             //and the amount of messages per second both ep's could process. About 23 req per sec vs. 208 req per sec. Significant
