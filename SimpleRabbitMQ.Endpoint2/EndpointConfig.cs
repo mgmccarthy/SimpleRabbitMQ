@@ -1,3 +1,4 @@
+using System;
 using NServiceBus;
 using NServiceBus.Persistence;
 
@@ -24,6 +25,13 @@ namespace SimpleRabbitMQ.Endpoint2
             //endpointConfiguration.UsePersistence<InMemoryPersistence>();
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
+
+            //https://docs.particular.net/monitoring/metrics/
+            //https://docs.particular.net/monitoring/metrics/install-plugin
+            var metrics = endpointConfiguration.EnableMetrics();
+            endpointConfiguration.UniquelyIdentifyRunningInstance()
+                .UsingNames(instanceName: endpointName, hostName: Environment.MachineName);
+            metrics.SendMetricDataToServiceControl(serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring", interval: TimeSpan.FromSeconds(10));
 
             var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
             unitOfWorkSettings.WrapHandlersInATransactionScope();

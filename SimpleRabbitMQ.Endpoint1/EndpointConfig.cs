@@ -1,3 +1,4 @@
+using System;
 using NServiceBus;
 using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.ConsistencyGuarantees;
@@ -12,8 +13,6 @@ namespace SimpleRabbitMQ.Endpoint1
             const string endpointName = "SimpleRabbitMQ.Endpoint1";
 
             var settings = endpointConfiguration.GetSettings();
-            //this doesn't work
-            //var foo = settings.TryGet("GetRequiredTransactionModeForReceives", out TransportTransactionMode ttm);
 
             endpointConfiguration.DefineEndpointName(endpointName);
 
@@ -27,21 +26,24 @@ namespace SimpleRabbitMQ.Endpoint1
             //this does not appear to be an option with this version of RabbitMQ persistence, but apparently, it's the default
             //transport.UseConventionalRoutingTopology();
 
-            //var settings = transport.GetSettings();
-
             //endpointConfiguration.UsePersistence<InMemoryPersistence>();
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
 
-            var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
-            unitOfWorkSettings.WrapHandlersInATransactionScope();
+            //https://docs.particular.net/monitoring/metrics/
+            //https://docs.particular.net/monitoring/metrics/install-plugin
+            var metrics = endpointConfiguration.EnableMetrics();
+            endpointConfiguration.UniquelyIdentifyRunningInstance()
+                .UsingNames(instanceName: endpointName, hostName: Environment.MachineName);
+            metrics.SendMetricDataToServiceControl(serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring", interval: TimeSpan.FromSeconds(10));
+
+            //var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
+            //unitOfWorkSettings.WrapHandlersInATransactionScope();
 
             endpointConfiguration.EnableInstallers();
 
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
-
-            //var foo = TransactionModeSettingsExtensions.GetRequiredTransactionModeForReceives()
         }
     }
 }

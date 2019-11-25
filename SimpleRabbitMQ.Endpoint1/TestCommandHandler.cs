@@ -43,9 +43,17 @@ namespace SimpleRabbitMQ.Endpoint1
             //https://www.planetgeek.ch/2015/03/16/participating-in-transactionscopes-and-asyncawait-alone-in-the-dark/
             //https://www.planetgeek.ch/2015/03/20/participating-in-transactionscopes-and-asyncawait-lets-get-the-money-back/
             #endregion
-            //TODO, so when new'ing up a TransactionScope with enabled async flow, what is the TransactionScopeOption and the IsoliationLevel?
-            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
+            //when new'ing up a TransactionScope using TransactionScopeAsyncFlowOption.Enabled, the Isoluation level is ReadCommitted, which is what we want
+            //however, the TransactionScopeOption is Required, which might be a problem b/c of this command next to that option type in the decompiled code:
+            //A transaction is required by the scope. It uses an ambient transaction if one already exists. Otherwise, it creates a new transaction before entering the scope. This is the default value.
+            //so, either it uses and existing ambient transaction (which we don't want, b/c an ambient transaction I THINK is basically going to be bumped to a distributed transaction). So it either enlists in current or creates new, both of which option we want suppress, not require
+
+            #region new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted })
+            //this is what Crb's TransactionScopeBuilder uses to create a transaction scope. Problem here is this doesn't support async
+            #endregion
+
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
                 Log.Info("Hello from TestCommandHandler");
 
                 //with exception thrown here, the outgoing publish is NOT sent
@@ -60,8 +68,8 @@ namespace SimpleRabbitMQ.Endpoint1
                 //with an exception thrown here, the outgoing publish is still handled in TestEventHandler
                 //throw new Exception("boom!");
 
-                //scope.Complete();
-            //}
+                scope.Complete();
+            }
         }
     }
 }
