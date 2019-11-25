@@ -29,12 +29,11 @@ namespace SimpleRabbitMQ.Endpoint2
             //https://docs.particular.net/monitoring/metrics/
             //https://docs.particular.net/monitoring/metrics/install-plugin
             var metrics = endpointConfiguration.EnableMetrics();
-            endpointConfiguration.UniquelyIdentifyRunningInstance()
-                .UsingNames(instanceName: endpointName, hostName: Environment.MachineName);
-            metrics.SendMetricDataToServiceControl(serviceControlMetricsAddress: "Particular.Rabbitmq.Monitoring", interval: TimeSpan.FromSeconds(10));
+            endpointConfiguration.UniquelyIdentifyRunningInstance().UsingNames(endpointName, Environment.MachineName);
+            metrics.SendMetricDataToServiceControl("Particular.Rabbitmq.Monitoring", TimeSpan.FromSeconds(10));
 
-            var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
-            unitOfWorkSettings.WrapHandlersInATransactionScope();
+            //var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
+            //unitOfWorkSettings.WrapHandlersInATransactionScope();
 
             endpointConfiguration.EnableInstallers();
 
