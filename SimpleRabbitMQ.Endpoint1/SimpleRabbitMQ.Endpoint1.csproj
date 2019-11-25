@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureRouting.cs" />
+    <Compile Include="ConfigureTransactions.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

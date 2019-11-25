@@ -1,4 +1,6 @@
 using NServiceBus;
+using NServiceBus.Configuration.AdvanceExtensibility;
+using NServiceBus.ConsistencyGuarantees;
 using NServiceBus.Persistence;
 
 namespace SimpleRabbitMQ.Endpoint1
@@ -8,6 +10,10 @@ namespace SimpleRabbitMQ.Endpoint1
         public void Customize(EndpointConfiguration endpointConfiguration)
         {
             const string endpointName = "SimpleRabbitMQ.Endpoint1";
+
+            var settings = endpointConfiguration.GetSettings();
+            //this doesn't work
+            //var foo = settings.TryGet("GetRequiredTransactionModeForReceives", out TransportTransactionMode ttm);
 
             endpointConfiguration.DefineEndpointName(endpointName);
 
@@ -21,6 +27,8 @@ namespace SimpleRabbitMQ.Endpoint1
             //this does not appear to be an option with this version of RabbitMQ persistence, but apparently, it's the default
             //transport.UseConventionalRoutingTopology();
 
+            //var settings = transport.GetSettings();
+
             //endpointConfiguration.UsePersistence<InMemoryPersistence>();
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
@@ -32,6 +40,8 @@ namespace SimpleRabbitMQ.Endpoint1
 
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
+
+            //var foo = TransactionModeSettingsExtensions.GetRequiredTransactionModeForReceives()
         }
     }
 }

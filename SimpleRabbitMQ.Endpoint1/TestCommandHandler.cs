@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using System.Transactions;
 using NServiceBus;
 using NServiceBus.Logging;
 using SimpleRabbitMQ.Messages;
@@ -9,17 +11,57 @@ namespace SimpleRabbitMQ.Endpoint1
     {
         private static readonly ILog Log = LogManager.GetLogger<TestCommandHandler>();
 
-        public Task Handle(TestCommand message, IMessageHandlerContext context)
+        public async Task Handle(TestCommand message, IMessageHandlerContext context)
         {
-            Log.Info("Hello from TestCommandHandler");
-            
-            //commenting out the RequireImmediateDispatch had a significant impact on now many req per second went through both WebAPI (via West Wind Web Surge)
-            //and the amount of messages per second both ep's could process. About 23 req per sec vs. 208 req per sec. Significant
-            //var options = new PublishOptions();
-            //options.RequireImmediateDispatch();
-            //return context.Publish(new TestEvent(), options);
-            
-            return context.Publish(new TestEvent());
+            //https://docs.microsoft.com/en-us/dotnet/framework/data/transactions/implementing-an-implicit-transaction-using-transaction-scope
+            //TODO: default is serializable, which is not what I want, I want ReadCommitted
+            //TransactionScopeOption.Suppress should prevent the transaction to enlist as a distributed/ambient transaction
+            //override IsolationLevel to be ReadCommited (default iso level of TransactionScope is Serializable)
+
+            #region new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted })):
+            //so, interesting run time exception thrown when using TransactionScope with these constructor args:
+            //2019 - 11 - 24 12:45:51.163 INFO SimpleRabbitMQ.Endpoint1.TestCommandHandler Hello from TestCommandHandler
+            //2019 - 11 - 24 12:45:59.347 WARN NServiceBus.ForceImmediateDispatchForOperationsInSuppressedScopeBehavior
+            //    Suppressed ambient transaction detected when requesting the outgoing operation.
+            //    Support for this behavior is deprecated and will be removed in Version 7.The new api for requesting immediate dispatch is
+            //var options = new Send| Publish | ReplyOptions()
+            //options.RequireImmediateDispatch()
+            //session.Send | Publish | Reply(new MyMessage(), options)
+            #endregion
+
+            #region using (var scope = new TransactionScope()){}
+            //default TransactionScopeOption is TransactionScopeOption.Required, and default IsolationLevel is ReadCommitted
+            //ok, using this option threw the following excpetion:
+            //2019 - 11 - 24 12:53:42.515 INFO NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message '590f033d-edac-4fcc-9e60-ab0f0124ba41' because of an exception:
+            //System.InvalidOperationException: A TransactionScope must be disposed on the same thread that it was created
+            //MIKE: this might have to do with AsyncFlow?
+            #endregion
+
+            #region Daniel Marbach's series of posts on TransactionScope and Async/Await
+            //https://www.planetgeek.ch/2014/12/07/participating-in-transactionscopes-and-asyncawait-introduction/
+            //https://www.planetgeek.ch/2014/12/16/participating-in-transactionscopes-and-asyncawait-going-deep-into-the-abyss/
+            //https://www.planetgeek.ch/2015/03/16/participating-in-transactionscopes-and-asyncawait-alone-in-the-dark/
+            //https://www.planetgeek.ch/2015/03/20/participating-in-transactionscopes-and-asyncawait-lets-get-the-money-back/
+            #endregion
+            //TODO, so when new'ing up a TransactionScope with enabled async flow, what is the TransactionScopeOption and the IsoliationLevel?
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+                Log.Info("Hello from TestCommandHandler");
+
+                //with exception thrown here, the outgoing publish is NOT sent
+                //HOWEVER, taking the TransactionScope away restuls in the SAME EXACT BEHAVIOR.. the outgoing puslish is not sent!!!!
+                //so what exactly are we getting from TransactionScope? Nothing.
+                //throw new Exception("boom!");
+
+                var options = new PublishOptions();
+                options.RequireImmediateDispatch();
+                await context.Publish(new TestEvent(), options);
+
+                //with an exception thrown here, the outgoing publish is still handled in TestEventHandler
+                //throw new Exception("boom!");
+
+                //scope.Complete();
+            //}
         }
     }
 }
