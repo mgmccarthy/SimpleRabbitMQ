@@ -1,7 +1,7 @@
 ﻿using NServiceBus;
 using NServiceBus.Settings;
 
-namespace SimpleRabbitMQ.Endpoint1
+namespace SimpleRabbitMQ.Endpoint2
 {
     class ConfigureTransactions : IWantToRunBeforeConfigurationIsFinalized
     {
