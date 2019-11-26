@@ -1,4 +1,7 @@
-﻿namespace SimpleRabbitMQ.Endpoint1
+﻿using NServiceBus;
+using SimpleRabbitMQ.Messages;
+
+namespace SimpleRabbitMQ.Endpoint2
 {
     //public class ConfigureRouting : INeedInitialization
     //{
