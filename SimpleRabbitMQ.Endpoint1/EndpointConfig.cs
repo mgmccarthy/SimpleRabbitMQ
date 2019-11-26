@@ -1,7 +1,5 @@
 using System;
 using NServiceBus;
-using NServiceBus.Configuration.AdvanceExtensibility;
-using NServiceBus.ConsistencyGuarantees;
 using NServiceBus.Persistence;
 
 namespace SimpleRabbitMQ.Endpoint1
@@ -11,8 +9,6 @@ namespace SimpleRabbitMQ.Endpoint1
         public void Customize(EndpointConfiguration endpointConfiguration)
         {
             const string endpointName = "SimpleRabbitMQ.Endpoint1";
-
-            var settings = endpointConfiguration.GetSettings();
 
             endpointConfiguration.DefineEndpointName(endpointName);
 

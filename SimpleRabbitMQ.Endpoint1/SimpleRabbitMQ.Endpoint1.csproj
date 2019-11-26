@@ -93,6 +93,7 @@
     <Compile Include="ConfigureRouting.cs" />
     <Compile Include="ConfigureTransactions.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="TransactionFeature.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestCommandHandler.cs" />
