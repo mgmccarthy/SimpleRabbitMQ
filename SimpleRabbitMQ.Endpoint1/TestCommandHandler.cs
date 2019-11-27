@@ -52,8 +52,10 @@ namespace SimpleRabbitMQ.Endpoint1
             //this is what Crb's TransactionScopeBuilder uses to create a transaction scope. Problem here is this doesn't support async
             #endregion
 
-            //TODO: find out why when using the MSMQ transport when using TransactionScope like this (aka, not AsyncFlowOption.enabled), the EP does NOT throw an exception like when using the RabbitMQ transport
+            //TODO: find out why when using the MSMQ transport when using TransactionScope like this (aka, not AsyncFlowOption.enabled):
             //using (var scope = new TransactionScope())
+            //the EP does NOT throw this exception: System.InvalidOperationException: A TransactionScope must be disposed on the same thread that it was created.
+            //(when using the RabbitMQ transport, this exception is throw)
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 Log.Info("Hello from TestCommandHandler");
