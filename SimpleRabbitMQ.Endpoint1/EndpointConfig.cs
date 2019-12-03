@@ -18,8 +18,16 @@ namespace SimpleRabbitMQ.Endpoint1
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
             persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
 
-            //var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
-            //unitOfWorkSettings.WrapHandlersInATransactionScope();
+            //2019-12-03 15:53:54.984 FATAL NServiceBus.GenericHost Exception when starting endpoint.
+            //System.InvalidOperationException: NServiceBus performance counter for 'Critical Time' is not set up correctly.To rectify this problem, consult the NServiceBus performance counters documentation. --->System.InvalidOperationException: The requested Performance Counter is not a custom counter, it has to be initialized as ReadOnly.
+            //PerformanceCounters has been moved to an external nuget package: NServiceBus.Metrics.PerformanceCounters
+            //Old PerformanceCounter APIs marked obsolete in 6.2 of NServiceBus
+            #pragma warning disable 618
+            endpointConfiguration.EnableCriticalTimePerformanceCounter();
+            endpointConfiguration.EnableSLAPerformanceCounter(TimeSpan.FromSeconds(100));
+
+            //var performanceCounters = endpointConfiguration.EnableWindowsPerformanceCounters();
+            //performanceCounters.EnableSLAPerformanceCounters(TimeSpan.FromSeconds(100));
 
             endpointConfiguration.EnableInstallers();
 
