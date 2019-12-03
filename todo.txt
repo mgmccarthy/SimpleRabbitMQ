@@ -1,0 +1,11 @@
+TODO
+----
+- create simple table(s) against which both ep's can work
+- each operation can read a row, then insert a row, to mirror most of the work being done by the Mediator pattern in CRB
+- load test them
+
+- turn on Windows perf counters and see how those differ from the stats you're sending to ServicePulse
+	- https://docs.particular.net/nservicebus/hosting/nservicebus-host/?version=host_7#performance-counters
+
+- plug NewRelic packages into the ep's and take a look at the very specific message throughput stuff in NewRelic
+	- https://docs.particular.net/samples/logging/new-relic/?version=metrics_2

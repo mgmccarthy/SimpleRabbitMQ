@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 15.0.26730.12
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleRabbitMQ.Client.Web", "SimpleRabbitMQ.Client.Web\SimpleRabbitMQ.Client.Web.csproj", "{189D576C-F261-4841-80D5-76B142881205}"
 EndProject
@@ -9,6 +9,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleRabbitMQ.Endpoint2", "SimpleRabbitMQ.Endpoint2\SimpleRabbitMQ.Endpoint2.csproj", "{30770B4E-4896-4295-9C62-50B6BE92DC32}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleRabbitMQ.Endpoint1", "SimpleRabbitMQ.Endpoint1\SimpleRabbitMQ.Endpoint1.csproj", "{53DD4616-10C4-442C-87E9-5BF453DBFD12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4C7FF33-36B9-4339-B9FC-3952ED1DD4AC}"
+	ProjectSection(SolutionItems) = preProject
+		todo.txt = todo.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
