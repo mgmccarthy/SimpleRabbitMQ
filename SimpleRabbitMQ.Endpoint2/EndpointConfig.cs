@@ -11,7 +11,8 @@ namespace SimpleRabbitMQ.Endpoint2
             const string endpointName = "SimpleRabbitMQ.Endpoint2";
             endpointConfiguration.DefineEndpointName(endpointName);
 
-            var transport = endpointConfiguration.UseMSMQ();
+            //var transport = endpointConfiguration.UseMSMQ();
+            var transport = endpointConfiguration.UseRabbitMQ(endpointName);
             transport.Transactions(TransportTransactionMode.ReceiveOnly);
 
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();

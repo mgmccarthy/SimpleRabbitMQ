@@ -56,24 +56,25 @@ namespace SimpleRabbitMQ.Endpoint1
             //using (var scope = new TransactionScope())
             //the EP does NOT throw this exception: System.InvalidOperationException: A TransactionScope must be disposed on the same thread that it was created.
             //(when using the RabbitMQ transport, this exception is throw)
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                Log.Info("Hello from TestCommandHandler");
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+                Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
 
                 //with exception thrown here, the outgoing publish is NOT sent
-                //HOWEVER, taking the TransactionScope away restuls in the SAME EXACT BEHAVIOR.. the outgoing puslish is not sent!!!!
+                //HOWEVER, taking the TransactionScope away results in the SAME EXACT BEHAVIOR.. the outgoing puslish is not sent!!!!
                 //so what exactly are we getting from TransactionScope? Nothing.
                 //throw new Exception("boom!");
 
+                //12/2: after talking to Indu and Sean at Particular software today, putting bus ops in TransactionScope does NOTHING
                 var options = new PublishOptions();
                 options.RequireImmediateDispatch();
-                await context.Publish(new TestEvent(), options);
+                await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
 
                 //with an exception thrown here, the outgoing publish is still handled in TestEventHandler
                 //throw new Exception("boom!");
 
-                scope.Complete();
-            }
+            //    scope.Complete();
+            //}
         }
     }
 }

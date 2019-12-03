@@ -14,9 +14,11 @@ namespace SimpleRabbitMQ.Client.Web
 
         protected void Application_Start()
         {
-            var endpointConfiguration = new EndpointConfiguration("SimpleRabbitMQ.Client.Web");
+            const string endpointName = "SimpleRabbitMQ.Client.Web";
+            var endpointConfiguration = new EndpointConfiguration(endpointName);
 
-            var transport = endpointConfiguration.UseMSMQ();
+            //var transport = endpointConfiguration.UseMSMQ();
+            var transport = endpointConfiguration.UseRabbitMQ(endpointName);
             transport.Transactions(TransportTransactionMode.ReceiveOnly);
 
             transport.Routing().RouteToEndpoint(typeof(TestCommand), "SimpleRabbitMQ.Endpoint1");

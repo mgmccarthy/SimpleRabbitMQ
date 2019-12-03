@@ -7,11 +7,11 @@ namespace SimpleRabbitMQ.Endpoint2
 {
     public class TestEventHandler :IHandleMessages<TestEvent>
     {
-        static readonly ILog log = LogManager.GetLogger<TestEventHandler>();
+        private static readonly ILog Log = LogManager.GetLogger<TestEventHandler>();
 
         public Task Handle(TestEvent message, IMessageHandlerContext context)
         {
-            log.Info("Hello from TestEventHandler");
+            Log.Info($"TestEventHandler. OrderId: {message.OrderId}");
             return Task.CompletedTask;
         }
     }
