@@ -1,8 +1,12 @@
 TODO
 ----
-- create simple table(s) against which both ep's can work
-- each operation can read a row, then insert a row, to mirror most of the work being done by the Mediator pattern in CRB
-- load test them
-
-- plug NewRelic packages into the ep's and take a look at the very specific message throughput stuff in NewRelic
-	- https://docs.particular.net/samples/logging/new-relic/?version=metrics_2
+- Get Outbox up and running
+	- do one db op (insert) per handler
+	- load test against the db op
+	- then, play with exceptions placed in the handler in the context of the db op and the publish message going out in the command handler
+		- see if this responds the way you think it will
+		- add in TransactionScope to prove/disprove things the Afterman team is thinking
+	- THEN, add Outbox
+	- AND, find a way to share the Outbox connection with the connection that is doing the db ops
+		- most likely, just using straight-up ADO might be beneficial here
+	- THEN load test against Outbox ON vs. Outbox OFF
