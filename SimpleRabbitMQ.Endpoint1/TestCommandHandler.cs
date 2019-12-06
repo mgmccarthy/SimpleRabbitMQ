@@ -63,31 +63,40 @@ namespace SimpleRabbitMQ.Endpoint1
             //{
                 Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
 
-            //with exception thrown here, the outgoing publish is NOT sent
-            //HOWEVER, taking the TransactionScope away results in the SAME EXACT BEHAVIOR.. the outgoing puslish is not sent!!!!
-            //so what exactly are we getting from TransactionScope? Nothing.
-            //throw new Exception("boom!");
+                const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
+                var  sql = $"INSERT INTO [dbo].[TestCommandHandler] ([OrderId]) VALUES ('{message.OrderId}');";
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    command.ExecuteNonQuery();
+                }
 
-            //var options = new PublishOptions();
-            //options.RequireImmediateDispatch();
-            //await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
-
-            const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
-            var  sql = $"INSERT INTO [dbo].[TestCommandHandler] ([OrderId]) VALUES ('{message.OrderId}');";
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = sql;
-                command.ExecuteNonQuery();
-            }
-
-            await context.Publish(new TestEvent { OrderId = message.OrderId });
-
-                //with an exception thrown here, the outgoing publish is still handled in TestEventHandler
+                //with exception thrown here, the outgoing publish is NOT sent
+                //HOWEVER, TransactionScope does do something here, but it has nothing to do with messaging. With or without TransactionScope, the message is not published
+                //with TransactionScope, the db rolls back properly (aka, there is no record in TestCommandHandler table)
+                //WITHOUT TransactionScope, the db does NOT roll back properly. Even though an exception if thrown after .ExecuteNonQuery and the handler retries,
+                //the row is still written to the db.
+                //SO, TransactionScope does do something here, but it's in the context of the db rollback, nothing to do with messaging
+                //my best guess as to why is the db operation is not rolling back is lack of a try/catch block when not using TransactionScope?
+                //- or, my understanding of ADO.NET is so outdated that transactions need to manually handle/be assigned to the open connection in order for the operation to participate in the handler's ambient transaction
                 //throw new Exception("boom!");
 
-            //  scope.Complete();
+                //var options = new PublishOptions();
+                //options.RequireImmediateDispatch();
+                //await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
+
+                await context.Publish(new TestEvent { OrderId = message.OrderId });
+
+                //with an exception thrown here, the outgoing publish does NOT happen (this is the publish call with RequireImmediateDispatch off and TransactionScope on)
+                //interesting   , when RequireImmediateDispatch is on, and TransactionScope is on, then the outgoing publish DOES happen! WTF!
+                //- AND, the event handler is writing to the database!
+                //- maybe b/c the event handler's db ops are not in a TransactionScope?
+                //TODO: test this with TransactionScope off and RequireImmediateDispatch on
+                //throw new Exception("boom!");
+
+            //    scope.Complete();
             //}
         }
     }
