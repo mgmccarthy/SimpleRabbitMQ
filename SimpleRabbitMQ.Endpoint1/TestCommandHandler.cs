@@ -59,8 +59,8 @@ namespace SimpleRabbitMQ.Endpoint1
             //(when using the RabbitMQ transport, this exception is throw)
 
             //12/2: after talking to Indu and Sean at Particular software today, putting bus ops in TransactionScope does NOTHING
-            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
                 Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
 
                 const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
@@ -96,8 +96,8 @@ namespace SimpleRabbitMQ.Endpoint1
                 //TODO: test this with TransactionScope off and RequireImmediateDispatch on
                 //throw new Exception("boom!");
 
-            //    scope.Complete();
-            //}
+                scope.Complete();
+            }
         }
     }
 }
