@@ -16,7 +16,11 @@ namespace SimpleRabbitMQ.Endpoint2
             transport.Transactions(TransportTransactionMode.ReceiveOnly);
 
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
-            persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
+            //persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
+            //put the NSB persistence in the same datastore as the business data
+            persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;");
+
+            var outboxSettings = endpointConfiguration.EnableOutbox();
 
             //var unitOfWorkSettings = endpointConfiguration.UnitOfWork();
             //unitOfWorkSettings.WrapHandlersInATransactionScope();

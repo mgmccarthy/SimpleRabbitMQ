@@ -16,7 +16,11 @@ namespace SimpleRabbitMQ.Endpoint1
             transport.Transactions(TransportTransactionMode.ReceiveOnly);
 
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
-            persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
+            //persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=NServiceBusNHibernatePersistence; Integrated Security=True;");
+            //put the NSB persistence in the same datastore as the business data
+            persistence.ConnectionString(@"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;");
+
+            var outboxSettings = endpointConfiguration.EnableOutbox();
 
             //2019-12-03 15:53:54.984 FATAL NServiceBus.GenericHost Exception when starting endpoint.
             //System.InvalidOperationException: NServiceBus performance counter for 'Critical Time' is not set up correctly.To rectify this problem, consult the NServiceBus performance counters documentation. --->System.InvalidOperationException: The requested Performance Counter is not a custom counter, it has to be initialized as ReadOnly.
