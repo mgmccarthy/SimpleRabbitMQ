@@ -13,22 +13,25 @@ namespace SimpleRabbitMQ.Endpoint2
 
         public Task Handle(TestEvent message, IMessageHandlerContext context)
         {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                Log.Info($"TestEventHandler. OrderId: {message.OrderId}");
+            Log.Info($"TestEventHandler. OrderId: {message.OrderId}");
 
-                const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
-                var sql = $"INSERT INTO [dbo].[TestEventHandler] ([OrderId]) VALUES ('{message.OrderId}');";
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = sql;
-                    command.ExecuteNonQuery();
-                }
+            var sql = $"INSERT INTO [dbo].[TestEventHandler] ([OrderId]) VALUES ('{message.OrderId}');";
 
-                scope.Complete();
-            }
+            var session = context.SynchronizedStorageSession.Session();
+            session.CreateSQLQuery(sql).ExecuteUpdate();
+
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            //    const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
+            //    using (var connection = new SqlConnection(connectionString))
+            //    {
+            //        connection.Open();
+            //        var command = connection.CreateCommand();
+            //        command.CommandText = sql;
+            //        command.ExecuteNonQuery();
+            //    }
+            //    scope.Complete();
+            //}
 
             return Task.CompletedTask;
         }

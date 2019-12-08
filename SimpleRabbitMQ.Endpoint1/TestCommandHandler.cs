@@ -65,6 +65,8 @@ namespace SimpleRabbitMQ.Endpoint1
             Log.Info($"TestCommandHandler.OrderId: {message.OrderId}");
 
             var sql = $"INSERT INTO [dbo].[TestCommandHandler] ([OrderId]) VALUES ('{message.OrderId}');";
+
+            //TODO: move this call to a Pipeline behavior. Check HotelReservation for how
             var session = context.SynchronizedStorageSession.Session();
 
             //===========================================================
@@ -75,8 +77,8 @@ namespace SimpleRabbitMQ.Endpoint1
             //aka, you get the Outbox and biz data participating in the same transation without having to float the currently active connection and transation into handler code
             //===========================================================
             session.CreateSQLQuery(sql).ExecuteUpdate();
-            //===========================================================
             await context.Publish(new TestEvent {OrderId = message.OrderId});
+            //===========================================================
 
             ////===========================================================
             ////use NHiberate's session to execute ADO.NET calls
