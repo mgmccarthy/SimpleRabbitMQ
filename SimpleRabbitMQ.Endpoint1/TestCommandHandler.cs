@@ -69,11 +69,14 @@ namespace SimpleRabbitMQ.Endpoint1
 
             //===========================================================
             //use NHibernate's ISessoin to execute raw sql against the database
-            //https://bartwullems.blogspot.com/2013/07/use-nhibernate-to-execute-raw-sql.html
             //https://stackoverflow.com/questions/36386613/using-createsqlquery-with-insert-query-in-nhibernate
+            //so, it looks like if you use SynchronizedStorageSession in handler code, and you enable Outbox, then Outbox's transaction and any business data written using the synche'd session are automatically included in the same transaction:
+            //https://discuss.particular.net/t/outbox-questions/1201/2?u=mgmccarthy
+            //aka, you get the Outbox and biz data participating in the same transation without having to float the currently active connection and transation into handler code
             //===========================================================
             session.CreateSQLQuery(sql).ExecuteUpdate();
             //===========================================================
+            await context.Publish(new TestEvent {OrderId = message.OrderId});
 
             ////===========================================================
             ////use NHiberate's session to execute ADO.NET calls
