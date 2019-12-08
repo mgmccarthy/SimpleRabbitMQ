@@ -1,9 +1,11 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Transactions;
 using NServiceBus;
 using NServiceBus.Logging;
 using SimpleRabbitMQ.Messages;
+// ReSharper disable All
 
 namespace SimpleRabbitMQ.Endpoint1
 {
@@ -60,37 +62,95 @@ namespace SimpleRabbitMQ.Endpoint1
             //(when using the RabbitMQ transport, this exception is throw)
             #endregion
 
-            //this is the way to get to the underlying ADO.NET IDBConnection that NHibernate is using
+            Log.Info($"TestCommandHandler.OrderId: {message.OrderId}");
+
+            var sql = $"INSERT INTO [dbo].[TestCommandHandler] ([OrderId]) VALUES ('{message.OrderId}');";
             var session = context.SynchronizedStorageSession.Session();
 
-            //12/2: after talking to Indu and Sean at Particular software today, putting bus ops in TransactionScope does NOTHING
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
+            //===========================================================
+            //use NHibernate's ISessoin to execute raw sql against the database
+            //https://bartwullems.blogspot.com/2013/07/use-nhibernate-to-execute-raw-sql.html
+            //https://stackoverflow.com/questions/36386613/using-createsqlquery-with-insert-query-in-nhibernate
+            //===========================================================
+            session.CreateSQLQuery(sql).ExecuteUpdate();
+            //===========================================================
 
-                const string connectionString =
-                    @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
-                var sql = $"INSERT INTO [dbo].[TestCommandHandler] ([OrderId]) VALUES ('{message.OrderId}');";
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = sql;
-                    command.ExecuteNonQuery();
-                }
+            ////===========================================================
+            ////use NHiberate's session to execute ADO.NET calls
+            ////===========================================================
+            ////ISession session = sessionFactory.GetSession();
+            ////System.ObjectDisposedException: Cannot access a disposed object.
+            ////Object name: 'AdoTransaction'.
+            //using (var transaction = session.BeginTransaction())
+            //{
+            //    var command = session.Connection.CreateCommand();
+            //    command.Connection = session.Connection;
 
-                //throw new Exception("boom!");
+            //    transaction.Enlist(command);
 
-                //var options = new PublishOptions();
-                //options.RequireImmediateDispatch();
-                //await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
+            //    command.CommandText = sql;
+            //    command.ExecuteNonQuery();
 
-                await context.Publish(new TestEvent {OrderId = message.OrderId});
+            //    await context.Publish(new TestEvent { OrderId = message.OrderId });
 
-                //throw new Exception("boom!");
+            //    //so, this is failing, b/c I think the Outbox expectes to close/commit the transaction then connection, and here, I'm forcing that, and not giving Outbox a AdoTransation to commit
+            //    //not too sure what to do here... the quickest/easiest/guess thing is going to be that I just don't have to call .Committ(), b/c the Outbox will take of it for me?
+            //    transaction.Commit();
+            //}
+            ////===========================================================
 
-                scope.Complete();
-            }
+            ////===========================================================
+            ////12/2: after talking to Indu and Sean at Particular software today, putting bus ops in TransactionScope does NOTHING
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            //    Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
+
+            //    //this is the way to get to the underlying ADO.NET IDBConnection that NHibernate is using
+            //    var session = context.SynchronizedStorageSession.Session();
+
+            //    //const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
+            //    //using (var connection = new SqlConnection(connectionString))
+            //    //{
+            //    //    connection.Open();
+            //    //    var command = connection.CreateCommand();
+            //    //    command.CommandText = sql;
+            //    //    command.ExecuteNonQuery();
+            //    //}
+
+            //    var command = session.Connection.CreateCommand();
+            //    //this would get me acccess to the ADO.NET IDbTransaction. Just not too sure how that's going to "play" with NHibernate's managed transaction... my guess it, it won't play with it at all
+            //    //var foo = session.Connection.BeginTransaction();
+
+            //    //so, you can't NOT assign a transation instance to the session returned by SynchronizedStorageSession.Session() or the call won't work
+            //    //2019-12-07 11:08:20.607 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
+            //    //System.InvalidOperationException: ExecuteNonQuery requires the command to have a transaction when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.
+
+            //    //trying this... AND, no surprise, it will not work:
+            //    //command.Transaction = (IDbTransaction)session.Transaction;
+            //    //2019-12-07 11:18:04.458 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
+            //    //System.InvalidCastException: Unable to cast object of type 'NHibernate.Transaction.AdoTransaction' to type 'System.Data.IDbTransaction'.
+            //    //which means if I want to use NHibernate for NSB persistence, and I want Outbox on, and need to share both the connction and transatoin from Outbox with all business db ops in each handler, that all db biz ops need to happen through NHiberate?
+            //    //this could be a major problem for CRB, b/c they use a mash up of NHibernate via Repositories, ADO.NET, and some Dapper. FUCK.
+            //    //check these two blog posts to see if there is a way to pull this off:
+            //    //https://blog.maartenballiauw.be/post/2007/06/20/enlisting-an-ado-net-command-in-an-nhibernate-transaction.html
+            //    //https://lostechies.com/joshualockwood/2007/04/10/how-to-enlist-ado-commands-into-an-nhibernate-transaction/
+            //    //AND, even if you could, did you really want to get into this fucking mess?
+            //    //AND, how would play with, not play with TransactionScope? This is truly a fucking mess.
+            //    command.CommandText = sql;
+            //    command.ExecuteNonQuery();
+
+            //    //throw new Exception("boom!");
+
+            //    //var options = new PublishOptions();
+            //    //options.RequireImmediateDispatch();
+            //    //await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
+            //    await context.Publish(new TestEvent {OrderId = message.OrderId});
+
+            //    //throw new Exception("boom!");
+
+            //    scope.Complete();
+            //}
+            ////===========================================================
         }
     }
 }
