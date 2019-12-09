@@ -67,7 +67,7 @@
       <HintPath>..\packages\NServiceBus.Metrics.PerformanceCounters.2.0.0\lib\net452\NServiceBus.Metrics.PerformanceCounters.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Metrics.ServiceControl, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.Metrics.ServiceControl.2.0.0\lib\net452\NServiceBus.Metrics.ServiceControl.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.Metrics.ServiceControl.2.1.0\lib\net452\NServiceBus.Metrics.ServiceControl.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.NHibernate, Version=7.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.NHibernate.7.2.2\lib\net452\NServiceBus.NHibernate.dll</HintPath>
