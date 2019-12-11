@@ -1,8 +1,87 @@
 TODO
 ====
 
-New Relic Artifacts
--------------------
+On Train Back from Jersey City on 12/10
+=======================================
+Outbox on
+---------
+ep1
+Critical Time up to a minute
+most messgaes per sec is just over 150
+highest pile up of messages in EP1 is over 14,000
+
+Ep 2
+highest message per second is 200
+queueu length at 130
+4500 ms
+
+Outbox off
+----------
+ep1
+6,500 messages in queue
+critical time is 1 minute
+225 msgs per second
+
+ep2
+queue length 120
+170 messages a second
+3,500 ms is critical time
+
+Outbox Off, RequireImmediateDispatch On
+---------------------------------------
+ep1
+7,000 in queue
+225 messages a second
+critical time, about 1 minute
+
+ep2
+NO queue length
+170 messages a second
+critical time 800 ms
+
+Takeaway here is Outbox is a major throughput limiter. 
+However, when publishing just one event from handler, turning on RequireImmediateDispatch seems to alleviate the ep2 queue buildup.
+	- with RequireImmediateDispatch OFF, ep2 queue had about 120 messages in it's queue at most
+	- with RequireImmediateDispatch ON, ep2 queue had ZERO messages in it's queue
+
+Testing TransactionScope with RequireImmediateDispatch with Outbox OFF and exception thrown after bus.Publish
+=============================================================================================================
+
+TransactionScope: ON
+RequireImmediateDispatch: OFF
+- behavior should be messages DO NOT escape and no db rows are inserted into TestCommandHandler table
+- behavior confirmed
+
+TransactionScope: OFF
+RequireImmediateDispatch: OFF
+- behavior should be messages DO NOT escape and one db row is inserted into TestCommandHandler table
+- behavior confirmed
+
+TransactionScope: ON
+RequireImmediateDispatch: ON
+- behavior should be messages escape, no db rows are inserted into TestCommandHandler table, and one row is inserted into TestEvenHandler table
+- behavior confirmed
+- more specifically about the messages escaping, a couple artifacts to note about this behavior
+	- the TestCommandHandler table does not get any rows inserted (meaning the TransactionScope rolls be the db transaction successfully)
+	- b/c of the implementation of my test handlers (both handlers do an insert with an OrderId set at the point of command dispatch from an API controller)
+		- the first event/messgae to escape from the publishing command handler is handled successfully
+			- aka, the OrderId is written to TestEventHandler, even though the publishing handler failed
+		- all subsequent retries on the publishing handler side cause the same event to be published, which in turn causes the event's handler to throw an exception (PK vilation) and enter it's retry policy once for every publishing handler retry
+			- so, it's exponential retries for the event handler based on the same event escaping every time the publishing handler fails
+	- that's a LOT of churn and a lot of processes running for no reason
+	
+TransactionScope: OFF
+RequireImmediateDispatch: ON
+- behavior should be messages escape and one db row is inserted into each the TestCommandHandler and TestEventHandler table
+- behavior confirmed
+- more specifically about the messages escaping, a couple artifacts to note about this behavior
+	- this behavior differs from the above behavior (TransactionScope ON/RequireImmediateDispatch OFF) in that TestCommandHandler only publishes the event once, despite the multiple failures it encounters during execution of its retry policy
+		- is does not receive the event over and over again for each failed retry from the command handler
+			- I'm not too sure why this is... something about the lack of a TransactionScope that is trying to tied the business op and the dispatch together?
+	- this is by far, the biggest mysteray out of all the configs so far.
+
+New Relic URL's
+---------------
 - https://insights.newrelic.com/accounts/2554518/explorer/metrics#entityId=413065183&entityName=SimpleRabbitMQ.Client.Web&entityType=application&entityTypeName=Applications&view=METRICS_OF_ENTITY&timeWindow=30
 - https://rpm.newrelic.com/accounts/2554518/applications
 - https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-new-relic-apm
