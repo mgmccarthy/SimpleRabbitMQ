@@ -5,7 +5,6 @@ using System.Transactions;
 using NServiceBus;
 using NServiceBus.Logging;
 using SimpleRabbitMQ.Messages;
-// ReSharper disable All
 
 namespace SimpleRabbitMQ.Endpoint1
 {
@@ -63,99 +62,104 @@ namespace SimpleRabbitMQ.Endpoint1
             #endregion
 
             Log.Info($"TestCommandHandler.OrderId: {message.OrderId}");
-
             var sql = $"INSERT INTO [dbo].[TestCommandHandler] ([OrderId]) VALUES ('{message.OrderId}');";
-
-            //TODO: move this call to a Pipeline behavior. Check HotelReservation for how
+            
+            //this is the way to get to the underlying ADO.NET IDBConnection that NHibernate is using
             var session = context.SynchronizedStorageSession.Session();
 
-            //===========================================================
-            //use NHibernate's ISessoin to execute raw sql against the database
+            await UseNHibernatesSessionToExecuteRawSqlAgainstDb(session, sql, context, message);
+            //await UseNHibernatesSessionToExecuteAdoCalls(session, sql, context, message);
+            //UseSyncStorageContextToGetIDbConnectionFromNHibernateAndUseThatConnectionToExecuteAdoDbOps(session, sql);
+            //await TransactionScopeAndThrowingExceptionsNoOutbox(message, context, sql);
+        }
+
+        public Task UseNHibernatesSessionToExecuteRawSqlAgainstDb(NHibernate.ISession session, string sql, IMessageHandlerContext context, TestCommand message)
+        {
             //https://stackoverflow.com/questions/36386613/using-createsqlquery-with-insert-query-in-nhibernate
             //so, it looks like if you use SynchronizedStorageSession in handler code, and you enable Outbox, then Outbox's transaction and any business data written using the synche'd session are automatically included in the same transaction:
             //https://discuss.particular.net/t/outbox-questions/1201/2?u=mgmccarthy
             //aka, you get the Outbox and biz data participating in the same transation without having to float the currently active connection and transation into handler code
-            //===========================================================
             session.CreateSQLQuery(sql).ExecuteUpdate();
-            await context.Publish(new TestEvent {OrderId = message.OrderId});
-            //===========================================================
+            return context.Publish(new TestEvent { OrderId = message.OrderId });
+        }
 
-            ////===========================================================
-            ////use NHiberate's session to execute ADO.NET calls
-            ////===========================================================
-            ////ISession session = sessionFactory.GetSession();
-            ////System.ObjectDisposedException: Cannot access a disposed object.
-            ////Object name: 'AdoTransaction'.
-            //using (var transaction = session.BeginTransaction())
-            //{
-            //    var command = session.Connection.CreateCommand();
-            //    command.Connection = session.Connection;
+        public async Task UseNHibernatesSessiontoExecuteAdoCalls(NHibernate.ISession session, string sql, IMessageHandlerContext context, TestCommand message)
+        {
+            using (var transaction = session.BeginTransaction())
+            {
+                var command = session.Connection.CreateCommand();
+                command.Connection = session.Connection;
 
-            //    transaction.Enlist(command);
+                transaction.Enlist(command);
 
-            //    command.CommandText = sql;
-            //    command.ExecuteNonQuery();
+                command.CommandText = sql;
+                command.ExecuteNonQuery();
 
-            //    await context.Publish(new TestEvent { OrderId = message.OrderId });
+                await context.Publish(new TestEvent { OrderId = message.OrderId });
 
-            //    //so, this is failing, b/c I think the Outbox expectes to close/commit the transaction then connection, and here, I'm forcing that, and not giving Outbox a AdoTransation to commit
-            //    //not too sure what to do here... the quickest/easiest/guess thing is going to be that I just don't have to call .Committ(), b/c the Outbox will take of it for me?
-            //    transaction.Commit();
-            //}
-            ////===========================================================
+                //so, this is failing, b/c I think the Outbox expects to close/commit the transaction then connection. Here, I'm forcing that, and not giving Outbox a AdoTransation to commit
+                //not too sure what to do here... the quickest/easiest/guess thing is going to be that I just don't have to call .Committ(), b/c the Outbox will take of it for me?
+                //TODO: find out
+                transaction.Commit();
+            }
+        }
 
-            ////===========================================================
-            ////12/2: after talking to Indu and Sean at Particular software today, putting bus ops in TransactionScope does NOTHING
-            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
-            //    Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
+        public void UseSyncStorageContextToGetIDbConnectionFromNHibernateAndUseThatConnectionToExecuteAdoDbOps(NHibernate.ISession session, string sql)
+        {
+            //IDbCommand, this is what will be required by db access like Dapper and SqlBulkCopy
+            var command = session.Connection.CreateCommand();
 
-            //    //this is the way to get to the underlying ADO.NET IDBConnection that NHibernate is using
-            //    var session = context.SynchronizedStorageSession.Session();
+            //IDbTransation
+            //problem here is there is no way to "get" the current IDbTransaction from NHibernate's transaction AND, there is no way to "get" the IDbTransaction from the IDbConnection
+            //you have to beging a new transation, which is not want we want. Why? Outbox already has a transaction in play that the db biz ops need to enlist in
+            var transaction = session.Connection.BeginTransaction();
 
-            //    //const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
-            //    //using (var connection = new SqlConnection(connectionString))
-            //    //{
-            //    //    connection.Open();
-            //    //    var command = connection.CreateCommand();
-            //    //    command.CommandText = sql;
-            //    //    command.ExecuteNonQuery();
-            //    //}
+            //so, you HAVE TO assign a transation instance to the session returned by SynchronizedStorageSession.Session() or the call won't work
+            //2019-12-07 11:08:20.607 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
+            //System.InvalidOperationException: ExecuteNonQuery requires the command to have a transaction when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.
 
-            //    var command = session.Connection.CreateCommand();
-            //    //this would get me acccess to the ADO.NET IDbTransaction. Just not too sure how that's going to "play" with NHibernate's managed transaction... my guess it, it won't play with it at all
-            //    //var foo = session.Connection.BeginTransaction();
+            //trying this... AND, no surprise, it will not work:
+            command.Transaction = (IDbTransaction)session.Transaction;
+            //2019-12-07 11:18:04.458 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
+            //System.InvalidCastException: Unable to cast object of type 'NHibernate.Transaction.AdoTransaction' to type 'System.Data.IDbTransaction'.
+            //which means if I want to use NHibernate for NSB persistence, and I want Outbox on, and need to share both the connction and transatoin from Outbox with all business db ops in each handler, that all db biz ops need to happen through NHiberate?
+            //this could be a major problem for CRB, b/c they use a mash up of NHibernate via Repositories, ADO.NET, and some Dapper.
+            //check these two blog posts to see if there is a way to pull this off:
+            //https://blog.maartenballiauw.be/post/2007/06/20/enlisting-an-ado-net-command-in-an-nhibernate-transaction.html
+            //https://lostechies.com/joshualockwood/2007/04/10/how-to-enlist-ado-commands-into-an-nhibernate-transaction/
 
-            //    //so, you can't NOT assign a transation instance to the session returned by SynchronizedStorageSession.Session() or the call won't work
-            //    //2019-12-07 11:08:20.607 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
-            //    //System.InvalidOperationException: ExecuteNonQuery requires the command to have a transaction when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.
+            command.CommandText = sql;
+            command.ExecuteNonQuery();
+        }
 
-            //    //trying this... AND, no surprise, it will not work:
-            //    //command.Transaction = (IDbTransaction)session.Transaction;
-            //    //2019-12-07 11:18:04.458 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
-            //    //System.InvalidCastException: Unable to cast object of type 'NHibernate.Transaction.AdoTransaction' to type 'System.Data.IDbTransaction'.
-            //    //which means if I want to use NHibernate for NSB persistence, and I want Outbox on, and need to share both the connction and transatoin from Outbox with all business db ops in each handler, that all db biz ops need to happen through NHiberate?
-            //    //this could be a major problem for CRB, b/c they use a mash up of NHibernate via Repositories, ADO.NET, and some Dapper. FUCK.
-            //    //check these two blog posts to see if there is a way to pull this off:
-            //    //https://blog.maartenballiauw.be/post/2007/06/20/enlisting-an-ado-net-command-in-an-nhibernate-transaction.html
-            //    //https://lostechies.com/joshualockwood/2007/04/10/how-to-enlist-ado-commands-into-an-nhibernate-transaction/
-            //    //AND, even if you could, did you really want to get into this fucking mess?
-            //    //AND, how would play with, not play with TransactionScope? This is truly a fucking mess.
-            //    command.CommandText = sql;
-            //    command.ExecuteNonQuery();
+        public async Task TransactionScopeAndThrowingExceptionsNoOutbox(TestCommand message, IMessageHandlerContext context, string sql)
+        {
+            //12/2: after talking to Indu and Sean at Particular software today, putting bus ops in TransactionScope does NOTHING
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                Log.Info($"TestCommandHandler. OrderId: {message.OrderId}");
 
-            //    //throw new Exception("boom!");
+                const string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB; Initial Catalog=SimpleRabbitMQ; Integrated Security=True;";
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    command.ExecuteNonQuery();
+                }
 
-            //    //var options = new PublishOptions();
-            //    //options.RequireImmediateDispatch();
-            //    //await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
-            //    await context.Publish(new TestEvent {OrderId = message.OrderId});
+                //throw new Exception("boom!");
 
-            //    //throw new Exception("boom!");
+                //var options = new PublishOptions();
+                //options.RequireImmediateDispatch();
+                //await context.Publish(new TestEvent { OrderId = message.OrderId }, options);
 
-            //    scope.Complete();
-            //}
-            ////===========================================================
+                await context.Publish(new TestEvent { OrderId = message.OrderId });
+
+                //throw new Exception("boom!");
+
+                scope.Complete();
+            }
         }
     }
 }
