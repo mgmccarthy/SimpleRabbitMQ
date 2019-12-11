@@ -1,12 +1,13 @@
 TODO
-----
-- Get Outbox up and running
-	- do one db op (insert) per handler
-	- load test against the db op
-	- then, play with exceptions placed in the handler in the context of the db op and the publish message going out in the command handler
-		- see if this responds the way you think it will
-		- add in TransactionScope to prove/disprove things the Afterman team is thinking
-	- THEN, add Outbox
-	- AND, find a way to share the Outbox connection with the connection that is doing the db ops
-		- most likely, just using straight-up ADO might be beneficial here
-	- THEN load test against Outbox ON vs. Outbox OFF
+====
+
+New Relic Artifacts
+-------------------
+- https://insights.newrelic.com/accounts/2554518/explorer/metrics#entityId=413065183&entityName=SimpleRabbitMQ.Client.Web&entityType=application&entityTypeName=Applications&view=METRICS_OF_ENTITY&timeWindow=30
+- https://rpm.newrelic.com/accounts/2554518/applications
+- https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-new-relic-apm
+- https://docs.newrelic.com/docs/apm/transactions/key-transactions/introduction-key-transactions
+- https://docs.newrelic.com/docs/understand-dependencies/distributed-tracing/get-started/introduction-distributed-tracing- 
+- https://docs.newrelic.com/docs/agents/net-agent/installation/update-net-agent
+- https://docs.newrelic.com/docs/release-notes/agent-release-notes/net-release-notes
+- https://docs.newrelic.com/docs/understand-dependencies/distributed-tracing/enable-configure/enable-distributed-tracing#agent-apis

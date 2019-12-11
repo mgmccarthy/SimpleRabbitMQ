@@ -78,12 +78,17 @@ namespace SimpleRabbitMQ.Endpoint1
             //https://stackoverflow.com/questions/36386613/using-createsqlquery-with-insert-query-in-nhibernate
             //so, it looks like if you use SynchronizedStorageSession in handler code, and you enable Outbox, then Outbox's transaction and any business data written using the synche'd session are automatically included in the same transaction:
             //https://discuss.particular.net/t/outbox-questions/1201/2?u=mgmccarthy
-            //aka, you get the Outbox and biz data participating in the same transation without having to float the currently active connection and transation into handler code
+            //aka, you get the Outbox and biz data participating in the same transaction without having to float the currently active connection and transaction into handler code
             session.CreateSQLQuery(sql).ExecuteUpdate();
-            return context.Publish(new TestEvent { OrderId = message.OrderId });
+            //return context.Publish(new TestEvent { OrderId = message.OrderId });
+
+            var options = new PublishOptions();
+            options.RequireImmediateDispatch();
+            //await context.Publish(new TestEvent { OrderId = message.OrderId }, options).ConfigureAwait(false);
+            return context.Publish(new TestEvent { OrderId = message.OrderId }, options);
         }
 
-        public async Task UseNHibernatesSessiontoExecuteAdoCalls(NHibernate.ISession session, string sql, IMessageHandlerContext context, TestCommand message)
+        public async Task UseNHibernatesSessionToExecuteAdoCalls(NHibernate.ISession session, string sql, IMessageHandlerContext context, TestCommand message)
         {
             using (var transaction = session.BeginTransaction())
             {
