@@ -78,5 +78,5 @@ namespace SimpleRabbitMQ.Endpoint2
 
     //    static string[] SplitComma = new[] { "," };
     //    MetricsOptions metricsOptions;
-    //}
+    }
 }

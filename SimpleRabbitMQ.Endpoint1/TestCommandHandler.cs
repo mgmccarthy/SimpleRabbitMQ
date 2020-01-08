@@ -124,7 +124,8 @@ namespace SimpleRabbitMQ.Endpoint1
             //System.InvalidOperationException: ExecuteNonQuery requires the command to have a transaction when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.
 
             //trying this... AND, no surprise, it will not work:
-            command.Transaction = (IDbTransaction)session.Transaction;
+            //command.Transaction = (IDbTransaction)session.Transaction;
+            
             //2019-12-07 11:18:04.458 INFO  NServiceBus.RecoverabilityExecutor Immediate Retry is going to retry message 'cb9e9517-dd12-4a2c-b9da-ab1c0109a504' because of an exception:
             //System.InvalidCastException: Unable to cast object of type 'NHibernate.Transaction.AdoTransaction' to type 'System.Data.IDbTransaction'.
             //which means if I want to use NHibernate for NSB persistence, and I want Outbox on, and need to share both the connction and transatoin from Outbox with all business db ops in each handler, that all db biz ops need to happen through NHiberate?
