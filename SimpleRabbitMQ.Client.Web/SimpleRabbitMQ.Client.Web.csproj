@@ -276,6 +276,10 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SimpleRabbitMQ.Common\SimpleRabbitMQ.Common.csproj">
+      <Project>{c4691af0-e396-4067-b4bd-56227c206b65}</Project>
+      <Name>SimpleRabbitMQ.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SimpleRabbitMQ.Messages\SimpleRabbitMQ.Messages.csproj">
       <Project>{db83eacd-cbbf-4246-9a9e-7aa157f7a2d3}</Project>
       <Name>SimpleRabbitMQ.Messages</Name>

@@ -1,6 +1,9 @@
 TODO
 ====
 
+- move endpointconfig code to new common project
+	- remember to move IPipelineExtensions there from the Messages project
+
 On Train Back from Jersey City on 12/10
 =======================================
 Outbox on

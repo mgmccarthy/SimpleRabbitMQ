@@ -105,7 +105,7 @@
   <ItemGroup>
     <Compile Include="ConfigureRouting.cs" />
     <Compile Include="ConfigureTransactions.cs" />
-    <Compile Include="EndpointConfig.cs" />
+    <Compile Include="Endpoint2Config.cs" />
     <Compile Include="NewRelicFeature.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,6 +117,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SimpleRabbitMQ.Common\SimpleRabbitMQ.Common.csproj">
+      <Project>{c4691af0-e396-4067-b4bd-56227c206b65}</Project>
+      <Name>SimpleRabbitMQ.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SimpleRabbitMQ.Messages\SimpleRabbitMQ.Messages.csproj">
       <Project>{db83eacd-cbbf-4246-9a9e-7aa157f7a2d3}</Project>
       <Name>SimpleRabbitMQ.Messages</Name>

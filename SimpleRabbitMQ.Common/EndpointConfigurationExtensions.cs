@@ -1,18 +1,17 @@
-using System;
+﻿using System;
 using NServiceBus;
 using NServiceBus.Persistence;
 
-namespace SimpleRabbitMQ.Endpoint2
+namespace SimpleRabbitMQ.Common
 {
-    public class EndpointConfig : IConfigureThisEndpoint
+    public static class EndpointConfigurationExtensions
     {
-        public void Customize(EndpointConfiguration endpointConfiguration)
+        //TODO: maybe this method can return the endpointConfiguration back to the caller so further refinement can be done?
+        public static void CommonConfiguration(this EndpointConfiguration endpointConfiguration, string endpointName, string transportSelection = "RabbitMQ")
         {
-            const string endpointName = "SimpleRabbitMQ.Endpoint2";
-            endpointConfiguration.DefineEndpointName(endpointName);
-
-            //var transport = endpointConfiguration.UseMSMQ();
-            var transport = endpointConfiguration.UseRabbitMQ(endpointName);
+            var transport = transportSelection == "RabbitMQ" ? 
+                endpointConfiguration.UseRabbitMQ(endpointName) : 
+                endpointConfiguration.UseMSMQ();
             transport.Transactions(TransportTransactionMode.ReceiveOnly);
 
             var persistence = endpointConfiguration.UsePersistence<NHibernatePersistence>();
@@ -38,10 +37,7 @@ namespace SimpleRabbitMQ.Endpoint2
             endpointConfiguration.SendFailedMessagesTo("SimpleRabbitMQ.Error");
             endpointConfiguration.AuditProcessedMessagesTo("SimpleRabbitMQ.Audit");
         }
-    }
 
-    public static class EndpointConfigurationExtensions
-    {
         // ReSharper disable once InconsistentNaming
         public static TransportExtensions UseRabbitMQ(this EndpointConfiguration endpointConfiguration, string endpointName)
         {
@@ -56,7 +52,7 @@ namespace SimpleRabbitMQ.Endpoint2
             metrics.SendMetricDataToServiceControl("Particular.Rabbitmq.Monitoring", TimeSpan.FromSeconds(10));
 
             //this does not appear to be an option with this version of RabbitMQ persistence, but apparently, it's the default
-            //transport.UseConventionalRoutingTopology();
+            transport.UseConventionalRoutingTopology();
 
             return transport;
         }
@@ -67,9 +63,6 @@ namespace SimpleRabbitMQ.Endpoint2
             var transport = endpointConfiguration.UseTransport<MsmqTransport>();
             var scanner = endpointConfiguration.AssemblyScanner();
             scanner.ExcludeAssemblies("NServiceBus.Transports.RabbitMQ.dll", "RabbitMQ.dll");
-
-            var settings = transport.Routing();
-            settings.RegisterPublisher(typeof(SimpleRabbitMQ.Messages.TestEvent), "SimpleRabbitMQ.Endpoint1");
 
             return transport;
         }
