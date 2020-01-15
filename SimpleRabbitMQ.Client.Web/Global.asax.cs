@@ -4,7 +4,6 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using NServiceBus;
-using SimpleRabbitMQ.Common;
 using SimpleRabbitMQ.Messages;
 
 namespace SimpleRabbitMQ.Client.Web
@@ -50,6 +49,29 @@ namespace SimpleRabbitMQ.Client.Web
         protected void Application_End()
         {
             Endpoint?.Stop().GetAwaiter().GetResult();
+        }
+    }
+
+    public static class EndpointConfigurationExtensions
+    {
+        // ReSharper disable once InconsistentNaming
+        public static TransportExtensions UseRabbitMQ(this EndpointConfiguration endpointConfiguration, string endpointName)
+        {
+            //RabbitMQ
+            var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+            transport.ConnectionString("host=localhost");
+
+            //MIKE: metrics are not supported on send only endpoints
+            ////https://docs.particular.net/monitoring/metrics/
+            ////https://docs.particular.net/monitoring/metrics/install-plugin
+            //var metrics = endpointConfiguration.EnableMetrics();
+            //endpointConfiguration.UniquelyIdentifyRunningInstance().UsingNames(endpointName, Environment.MachineName);
+            //metrics.SendMetricDataToServiceControl("Particular.Rabbitmq.Monitoring", TimeSpan.FromSeconds(10));
+
+            //this does not appear to be an option with this version of RabbitMQ persistence, but apparently, it's the default
+            transport.UseConventionalRoutingTopology();
+
+            return transport;
         }
     }
 }

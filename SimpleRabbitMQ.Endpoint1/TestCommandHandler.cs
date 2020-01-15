@@ -166,8 +166,8 @@ namespace SimpleRabbitMQ.Endpoint1
 
                 //throw new Exception("boom!");
 
-                //await context.PublishWithImmediateDispatch(new TestEvent { OrderId = message.OrderId });
-                await context.Publish(new TestEvent { OrderId = message.OrderId });
+                await context.PublishWithImmediateDispatch(new TestEvent { OrderId = message.OrderId });
+                //await context.Publish(new TestEvent { OrderId = message.OrderId });
 
                 //throw new Exception("boom!");
 
